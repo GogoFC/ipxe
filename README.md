@@ -50,6 +50,6 @@ make bin/undionly.kpxe EMBED=menu.ipxe && sudo cp bin/undionly.kpxe /srv/tftp/un
 
 `make realclean`
 
-# Wiki
+---
 
-[Wiki](https://github.com/GogoFC/ipxe/wiki)
+## 🔗 [Wiki](https://github.com/GogoFC/ipxe/wiki)
