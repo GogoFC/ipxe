@@ -1,0 +1,88 @@
+    #!ipxe
+
+    menu Main iPXE Menu
+    item netboot-local   Load Netboot local EFI
+    item netboot-local   Load Netboot local BIOS
+    item netboot-online  Load boot.netboot.xyz
+    item wds-uefi        WDS Boot Options UEFI
+    item wds-bios        WDS Boot Options BIOS
+    item shell           iPXE Shell
+    item exit            Exit iPXE
+
+    # Increase timeout
+    choose --default netboot --timeout 30000 target && goto ${target}
+
+    :netboot-local
+    echo "Chainloading Netboot..."
+    dhcp
+    chain http://192.168.15.11/pxe/netboot/netboot.xyz.ipxe || goto error
+    goto success
+
+    :netboot-local-bios
+    echo "Chainloading Netboot..."
+    dhcp
+    chain http://192.168.15.11/pxe/netboot/netboot.xyz.Kpxe || goto error
+    goto success
+
+
+    :netboot-online
+    echo "Chainloading Netboot online using --autofree..."
+    dhcp
+    chain --autofree http://boot.netboot.xyz || goto error
+    goto success
+
+    :wds-uefi
+    echo "Obtaining DHCP lease for WDS UEFI..."
+    dhcp
+    echo "Setting next-server to WDS UEFI (192.168.13.11)..."
+    set net0/next-server 192.168.13.11
+    set net0/filename boot\x64\bootmgfw.efi
+
+    echo "Chainloading WDS UEFI boot file..."
+    chain tftp://192.168.13.11/boot%5Cx64%5Cbootmgfw.efi || goto error
+    goto success
+
+    :wds-bios
+    echo "Obtaining DHCP lease for WDS BIOS..."
+    dhcp
+    echo "Setting next-server to WDS BIOS (192.168.13.11)..."
+    set net0/next-server 192.168.13.11
+    set net0/filename boot\x86\wdsnbp.com
+
+    echo "Chainloading WDS BIOS boot file..."
+    chain tftp://192.168.13.11/Boot/x86/wdsnbp.com || goto error
+    goto success
+
+    :shell
+    shell
+
+    :exit
+    exit
+
+    :error
+    echo "ERROR: Chainloading failed. Returning to menu..."
+    sleep 5
+    goto menu
+
+    :success
+    echo "Chainload successful."
+    sleep 2
+    goto menu
+
+    :menu
+    echo "Returning to Main Menu..."
+    goto MainMenu
+
+    # re-run the 'menu' command:
+    :MainMenu
+    menu Main iPXE Menu
+    item netboot-local   Load Netboot local EFI
+    item netboot-local   Load Netboot local BIOS
+    item netboot-online  Load boot.netboot.xyz
+    item wds-uefi        WDS Boot Options UEFI
+    item wds-bios        WDS Boot Options BIOS
+    item shell           iPXE Shell
+    item exit            Exit iPXE
+
+    # Increase timeout
+    choose --default netboot --timeout 30000 target && goto ${target}
