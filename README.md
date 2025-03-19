@@ -1,4 +1,4 @@
-# iPXE README File
+# iPXE
 
 Quick start guide:
 
